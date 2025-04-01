@@ -8,15 +8,17 @@ datos <- read_excel("/home/lsalvatore/Documents/FACULTAD/ProbabilidadYEstadistic
 
 datos <- datos |>
       select(   # Seleccionar las columnas que quiero conservar
-             "...1", "...2","...5", "...24", "...25", "...26", "...38", "...39", "...40", "...41", "...42", "...43", "...44", "...45", "...46", "...47", "...48", "...50" 
+             "...1", "...2","...5", "...6", "...24", "...25", "...26", "...38", "...39", "...40", "...41", "...42", "...43", "...44", "...45", "...46", "...47", "...48", "...50" 
          )
 
 colnames(datos) <- c("OrdenInicial", # Cuantitativa Discreta
                       "Provincia", # Cualitativa Nominal
                       "TiempoDeResidenciaEnAños", # Cuantitativa Continua
+                      "CantidadIntegrantesVivienda", #Cuantitativa Discreta
                       "FormaObtencionAgua", # Cualitativa Nominal
                       "AguaPotable", # Cualitativa Nominal Dicotómica
                       "PresionAgua", # Cualitativa Ordinal
+                     
                        #TipoDeCalefaccion -> Cualitativa de respuesta múltiple
                       "PoseeGasNaturalParaCocina", # Cualitativa Dicotómica
                       "PoseeGarrafaParaCocina", # Cualitativa Dicotómica
@@ -25,7 +27,6 @@ colnames(datos) <- c("OrdenInicial", # Cuantitativa Discreta
                       "NoTieneParaCocina",# Cualitativa Dicotómica
                      
                        #TipoDeCocina -> Cualitativa de respuesta múltiple
-                     
                       "PoseeGasNaturalParaCalefaccion", # Cualitativa Dicotómica
                       "PoseeGarrafaParaCalefaccion", # Cualitativa Dicotómica
                       "ElectricidadParaCalefaccion", # Cualitativa Dicotómica
@@ -73,33 +74,47 @@ datos_base$PresionAgua <- factor(datos_base$PresionAgua,
                                  ordered = TRUE)
 #Tiempo de residencia en años
 
+# --- GRAFICO 1 ------
+
 # Armamos un boxplot, para observar rapidamente un panorama donde se concentra el tiempo de residencia
 boxplot(datos_base$TiempoDeResidenciaEnAños, main = "Tiempo de Residencia en Años", ylab = "Tiempo de Residencia en Años", col = "lightblue")
 summary(datos_base$TiempoDeResidenciaEnAños)
 
+# ---- GRAFICO 2 ----
+ggplot(data.frame(datos_base), aes(x = CantidadIntegrantesVivienda)) +
+  geom_bar(fill = "lightblue") +
+  labs(title = "Cantidad de integrantes",
+       x = "",
+       y = "") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 10, hjust = 1))+
+  scale_y_continuous(breaks = seq(0, max(table(datos_base$CantidadIntegrantesVivienda)), by = 50))
+
 #SECCION AGUA 
 #Forma de obtención de agua
-agua <- datos_base
-agua$FormaObtencionAgua <- factor(agua$FormaObtencionAgua, levels = names(sort(table(datos_base$FormaObtencionAgua), decreasing = TRUE)))
+datos_base$FormaObtencionAgua <- factor(datos_base$FormaObtencionAgua, levels = names(sort(table(datos_base$FormaObtencionAgua), decreasing = TRUE)))
+datos_base$PresionAgua <- factor(datos_base$PresionAgua, levels = names(sort(table(datos_base$PresionAgua), decreasing = FALSE)))
 
-# --- GRAFICO 1 ------
-ggplot(data.frame(agua), aes(x = FormaObtencionAgua)) +
-  geom_bar(fill = "lightblue") +
+# --- GRAFICO 3 ------
+ggplot(data.frame(datos_base), aes(x = FormaObtencionAgua)) +
+  geom_bar(fill = "blue") +
   labs(title = "Forma de Obtención del Agua",
        x = "",
        y = "Cantidad de hogares") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 50, hjust = 1))+
-  scale_y_continuous(breaks = seq(0, max(table(agua$FormaObtencionAgua)), by = 50))
-#El agua que consigue, es potable?
+  scale_y_continuous(breaks = seq(0, max(table(datos_base$FormaObtencionAgua)), by = 50))
 
-# --- GRAFICO 2 ------
-pie(table(agua$AguaPotable), col = c("salmon", "lightblue"), # Cambia los colores según las categorías
-    main = "El agua es potable?")
+# --- GRAFICO 4 ------
 
-# --- GRAFICO 3 ------
-pie(table(agua$AguaPotable), col = c("salmon", "lightblue"), # Cambia los colores según las categorías
-    main = "El agua es potable?")
+ggplot(data.frame(datos_base), aes(x = PresionAgua)) +
+  geom_bar(fill = "lightblue") +
+  labs(title = "Presion del Agua",
+       x = "",
+       y = "Cantidad de hogares") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 50, hjust = 1))+
+  scale_y_continuous(breaks = seq(0, max(table(datos_base$PresionAgua)), by = 50))
 
 #SECCION CALEFACCION Y COCINA
 calefaccion <- data.frame(
@@ -110,12 +125,22 @@ calefaccion <- data.frame(
   "No Tiene" = datos_base$NoTieneParaCalefaccion,
   "No Necesita" = datos_base$NoNecesitaCalefaccionar
 )
-calefaccionfreq <- colSums(calefaccion[, -1])
+calefaccionfreq <- colSums(calefaccion)
 
-#barplot(calefaccionfreq , col = "lightblue",
-#        main = "Modos de Calefaccion en los hogares",
-#        xlab = "", ylab = "Cantidad de Hogares",
-#        names.arg = names(calefaccionfreq))
+# Convertir los datos de frecuencia en un data frame
+calefaccion_df <- data.frame(
+  Tipo = names(calefaccionfreq),
+  Frecuencia = calefaccionfreq
+)
+
+
+# --- GRAFICO 5: Porcentaje de hogares por método de calefacción------
+ggplot(calefaccion_df, aes(x = Tipo, y = Frecuencia, fill = Tipo)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Cantidad de Hogares de acuerdo a los Métodos de Calefacción", x = "Tipo", y = "Frecuencia") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3") +
+  geom_text(aes(label = calefaccion_df$Frecuencia), vjust = -0.5, color = "black")
 
 
 cocina <- data.frame(
@@ -125,11 +150,22 @@ cocina <- data.frame(
   "Leña Carbon" = datos_base$PoseeLeñaCarbonParaCocina,
   "No Tiene" = datos_base$NoTieneParaCocina
 )
-cocinafreq <- colSums(cocina[, -1])
-#barplot(cocinafreq , col = "lightblue",
-#        main = "Modos de cocina en los hogares",
-#        xlab = "", ylab = "Cantidad de Hogares",
-#        names.arg = names(cocinafreq))
+cocinafreq <- colSums(cocina)
+
+cocina_df <- data.frame(
+  Tipo = names(cocinafreq),
+  Frecuencia = cocinafreq
+)
+
+# --- GRAFICO 6: Porcentaje de hogares por método de cocina------
+ggplot(cocina_df, aes(x = Tipo, y = Frecuencia, fill = Tipo)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Cantidad de Hogares de acuerdo a los Métodos de Cocina", x = "Tipo", y = "Frecuencia") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3") +
+  geom_text(aes(label = Frecuencia), vjust = -0.5, color = "black")
+
+
 
 calefaccion$ID <- 1:nrow(calefaccion)  # Agregar ID para fusionar correctamente
 cocina$ID <- 1:nrow(cocina)
