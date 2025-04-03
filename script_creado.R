@@ -8,13 +8,14 @@ datos <- read_excel("/home/lsalvatore/Documents/FACULTAD/ProbabilidadYEstadistic
 
 datos <- datos |>
       select(   # Seleccionar las columnas que quiero conservar
-             "...1", "...2","...5", "...6", "...24", "...25", "...26", "...38", "...39", "...40", "...41", "...42", "...43", "...44", "...45", "...46", "...47", "...48", "...50" 
+             "...1", "...2","...5", "...6", "...13", "...24", "...25", "...26", "...38", "...39", "...40", "...41", "...42", "...43", "...44", "...45", "...46", "...47", "...48", "...50" 
          )
 
 colnames(datos) <- c("OrdenInicial", # Cuantitativa Discreta
                       "Provincia", # Cualitativa Nominal
                       "TiempoDeResidenciaEnAños", # Cuantitativa Continua
                       "CantidadIntegrantesVivienda", #Cuantitativa Discreta
+                      "CantidadDeDormitorios", #Cuantitativa Discreta
                       "FormaObtencionAgua", # Cualitativa Nominal
                       "AguaPotable", # Cualitativa Nominal Dicotómica
                       "PresionAgua", # Cualitativa Ordinal
@@ -81,14 +82,21 @@ boxplot(datos_base$TiempoDeResidenciaEnAños, main = "Tiempo de Residencia en A�
 summary(datos_base$TiempoDeResidenciaEnAños)
 
 # ---- GRAFICO 2 ----
-ggplot(data.frame(datos_base), aes(x = CantidadIntegrantesVivienda)) +
-  geom_bar(fill = "lightblue") +
-  labs(title = "Cantidad de integrantes",
-       x = "",
-       y = "") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 10, hjust = 1))+
-  scale_y_continuous(breaks = seq(0, max(table(datos_base$CantidadIntegrantesVivienda)), by = 50))
+
+ggplot(datos_base, aes(x = factor(CantidadIntegrantesVivienda))) +
+  geom_bar(fill = "steelblue", color = "black", width = 0.05) +
+  geom_text(
+    aes(label = after_stat(count)),  # Usar las frecuencias calculadas
+    stat = "count", 
+    vjust = -0.5, 
+    size = 4
+  ) +
+  labs(
+    title = "Distribución de Integrantes por Vivienda",
+    x = "Número de integrantes",
+    y = "Frecuencia"
+  ) +
+  theme_minimal()
 
 #SECCION AGUA 
 #Forma de obtención de agua
