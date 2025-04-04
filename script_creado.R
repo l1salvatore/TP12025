@@ -8,7 +8,7 @@ datos <- read_excel("/home/lsalvatore/Documents/FACULTAD/ProbabilidadYEstadistic
 
 datos <- datos |>
       select(   # Seleccionar las columnas que quiero conservar
-             "...1", "...2","...5", "...6", "...13", "...24", "...25", "...26", "...38", "...39", "...40", "...41", "...42", "...43", "...44", "...45", "...46", "...47", "...48", "...50" 
+             "...1", "...2","...5", "...6", "...13", "...14", "...24", "...25", "...26", "...38", "...39", "...40", "...41", "...42", "...43", "...44", "...45", "...46", "...47", "...48", "...50" 
          )
 
 colnames(datos) <- c("OrdenInicial", # Cuantitativa Discreta
@@ -16,6 +16,7 @@ colnames(datos) <- c("OrdenInicial", # Cuantitativa Discreta
                       "TiempoDeResidenciaEnAños", # Cuantitativa Continua
                       "CantidadIntegrantesVivienda", #Cuantitativa Discreta
                       "CantidadDeDormitorios", #Cuantitativa Discreta
+                      "CantMaxDePersonasPorDormitorio", #Cuantitativa Discreta
                       "FormaObtencionAgua", # Cualitativa Nominal
                       "AguaPotable", # Cualitativa Nominal Dicotómica
                       "PresionAgua", # Cualitativa Ordinal
@@ -38,6 +39,7 @@ colnames(datos) <- c("OrdenInicial", # Cuantitativa Discreta
                       "TipoConexionElectrica" # Cualitativa Nominal
                      )
 datos <- data.frame(datos)
+# Transformación
 datos_base <- datos |>
     mutate(
       AguaPotable = ifelse(AguaPotable == 'No' & !is.na(AguaPotable), 'Si', 'No'),
@@ -68,14 +70,11 @@ datos_base <- datos |>
        )
 datos_base <- datos_base %>%
   filter(Provincia == "CABA" | Provincia == "Mendoza" | Provincia == "Río Negro" | Provincia == "Santa Cruz" | Provincia == "Jujuy" | Provincia == "Córdoba" | Provincia == 'Misiones')
-
-
 datos_base$PresionAgua <- factor(datos_base$PresionAgua, 
                                  levels = c("Muy débil", "Débil", "Buena"), 
                                  ordered = TRUE)
-#Tiempo de residencia en años
 
-# --- GRAFICO 1 ------
+# --- GRAFICO 1 ------ #Tiempo de residencia en años
 
 # Armamos un boxplot, para observar rapidamente un panorama donde se concentra el tiempo de residencia
 boxplot(datos_base$TiempoDeResidenciaEnAños, main = "Tiempo de Residencia en Años", ylab = "Tiempo de Residencia en Años", col = "lightblue")
@@ -84,7 +83,7 @@ summary(datos_base$TiempoDeResidenciaEnAños)
 # ---- GRAFICO 2 ----
 
 ggplot(datos_base, aes(x = factor(CantidadIntegrantesVivienda))) +
-  geom_bar(fill = "steelblue", color = "black", width = 0.05) +
+  geom_bar(fill = "red", color = "black", width = 0.05) +
   geom_text(
     aes(label = after_stat(count)),  # Usar las frecuencias calculadas
     stat = "count", 
@@ -92,11 +91,23 @@ ggplot(datos_base, aes(x = factor(CantidadIntegrantesVivienda))) +
     size = 4
   ) +
   labs(
-    title = "Distribución de Integrantes por Vivienda",
+    title = "Cantidad de Viviendas por número de integrantes",
     x = "Número de integrantes",
-    y = "Frecuencia"
+    y = "Cantida de Viviendas"
   ) +
   theme_minimal()
+
+# ---- GRAFICO 2 ----
+
+ggplot(datos_base, aes(x = factor(CantidadIntegrantesVivienda), y = factor(CantMaxDePersonasPorDormitorio))) +
+  geom_point(fill = "red", color = "black") +
+  labs(
+    title = "Cantidad de Viviendas por número de integrantes",
+    x = "Número de integrantes",
+    y = "Cantida de Dormitorios"
+  ) +
+  theme_minimal()
+
 
 #SECCION AGUA 
 #Forma de obtención de agua
@@ -181,41 +192,35 @@ cocina$ID <- 1:nrow(cocina)
 # Unir tablas por ID
 datos_relacion <- merge(calefaccion, cocina, by = "ID", suffixes = c("_Calefaccion", "_Cocina"))
 
-#-----GRAFICO 3: Gas Natural -----
+#-----GRAFICO 7.1: Gas Natural -----
 tabla_contingencia <- table(
   calefaccion = factor(datos_relacion$GasNatural_Calefaccion, levels = c(0,1), labels = c("No", "Sí")),
   cocina = factor(datos_relacion$GasNatural_Cocina, levels = c(0,1), labels = c("No", "Sí"))
 )
+print('GAS NATURAL')
 print(tabla_contingencia)
 
-#-----GRAFICO 3: Garrafa -----
+#-----GRAFICO 7.2: Garrafa -----
 tabla_contingencia <- table(
   calefaccion = factor(datos_relacion$Garrafa_Calefaccion, levels = c(0,1), labels = c("No", "Sí")),
   cocina =  factor(datos_relacion$Garrafa_Cocina, levels = c(0,1), labels = c("No", "Sí"))
 )
-
+print('GARRAFA')
 print(tabla_contingencia)
 
-#-----GRAFICO 3: Electricidad -----
+#-----GRAFICO 7.3: Electricidad -----
 tabla_contingencia <- table(
   calefaccion = factor(datos_relacion$Electricidad_Calefaccion, levels = c(0,1), labels = c("No", "Sí")),
   cocina = factor(datos_relacion$Electricidad_Cocina, levels = c(0,1), labels = c("No", "Sí"))
 )
-
+print('ELECTRICIDAD')
 print(tabla_contingencia)
 
-#-----GRAFICO 3: LeñaCarbon -----
+#-----GRAFICO 7.4: LeñaCarbon -----
 tabla_contingencia <- table(
   calefaccion = factor(datos_relacion$Leña.Carbon_Calefaccion, levels = c(0,1), labels = c("No", "Sí")),
   cocina = factor(datos_relacion$Leña.Carbon_Cocina, levels = c(0,1), labels = c("No", "Sí"))
 )
-
-print(tabla_contingencia)
-
-#-----GRAFICO 3: No Tiene -----
-tabla_contingencia <- table(
-  calefaccion = factor(datos_relacion$No.Tiene_Calefaccion, levels = c(0,1), labels = c("No", "Sí")),
-  cocina = factor(datos_relacion$No.Tiene_Cocina, levels = c(0,1), labels = c("No", "Sí"))
-)
+print('LEÑA/CARBON')
 print(tabla_contingencia)
 
