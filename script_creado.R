@@ -8,15 +8,15 @@ datos <- read_excel("/home/lsalvatore/Documents/FACULTAD/ProbabilidadYEstadistic
 
 datos <- datos |>
       select(   # Seleccionar las columnas que quiero conservar
-             "...1", "...2","...5", "...6", "...13", "...14", "...24", "...25", "...26", "...38", "...39", "...40", "...41", "...42", "...43", "...44", "...45", "...46", "...47", "...48", "...50" 
+             "...1", "...2","...3", "...5", "...6", "...13", "...24", "...25", "...26", "...38", "...39", "...40", "...41", "...42", "...43", "...44", "...45", "...46", "...47", "...48", "...50" 
          )
 
 colnames(datos) <- c("OrdenInicial", # Cuantitativa Discreta
                       "Provincia", # Cualitativa Nominal
+                      "Barrio", # Cualitativa Nominal
                       "TiempoDeResidenciaEnAños", # Cuantitativa Continua
                       "CantidadIntegrantesVivienda", #Cuantitativa Discreta
                       "CantidadDeDormitorios", #Cuantitativa Discreta
-                      "CantMaxDePersonasPorDormitorio", #Cuantitativa Discreta
                       "FormaObtencionAgua", # Cualitativa Nominal
                       "AguaPotable", # Cualitativa Nominal Dicotómica
                       "PresionAgua", # Cualitativa Ordinal
@@ -69,13 +69,19 @@ datos_base <- datos |>
       
        )
 datos_base <- datos_base %>%
-  filter(Provincia == "CABA" | Provincia == "Mendoza" | Provincia == "Río Negro" | Provincia == "Santa Cruz" | Provincia == "Jujuy" | Provincia == "Córdoba" | Provincia == 'Misiones')
+  filter(Provincia == "Río Negro" | Provincia == "Santa Cruz")
 datos_base$PresionAgua <- factor(datos_base$PresionAgua, 
                                  levels = c("Muy débil", "Débil", "Buena"), 
                                  ordered = TRUE)
 
-# --- GRAFICO 1 ------ #Tiempo de residencia en años
 
+# --- GRAFICO 0 ------ #Cantidad de viviendas por provincia, qué estamos analizando
+df_tabla <- as.data.frame(table(datos_base$Provincia, datos_base$Barrio))
+colnames(df_tabla)<- c("Provincia", "Barrio", "Viviendas")
+df_tabla <- subset(df_tabla, Viviendas != 0)
+print(df_tabla)
+
+# --- GRAFICO 1 ------ #Tiempo de residencia en años
 # Armamos un boxplot, para observar rapidamente un panorama donde se concentra el tiempo de residencia
 boxplot(datos_base$TiempoDeResidenciaEnAños, main = "Tiempo de Residencia en Años", ylab = "Tiempo de Residencia en Años", col = "lightblue")
 summary(datos_base$TiempoDeResidenciaEnAños)
@@ -96,16 +102,20 @@ ggplot(datos_base, aes(x = factor(CantidadIntegrantesVivienda))) +
     y = "Cantida de Viviendas"
   ) +
   theme_minimal()
+summary(datos_base$CantidadIntegrantesVivienda)
+var(datos_base$CantidadIntegrantesVivienda)
+sd(datos_base$CantidadIntegrantesVivienda)
 
-# ---- GRAFICO 2 ----
+# ---- GRAFICO 2.1 ----
 
-ggplot(datos_base, aes(x = factor(CantidadIntegrantesVivienda), y = factor(CantMaxDePersonasPorDormitorio))) +
-  geom_point(fill = "red", color = "black") +
+ggplot(datos_base, aes(x = as.factor(CantidadDeDormitorios), y = CantidadIntegrantesVivienda)) +
+  geom_boxplot(fill = "skyblue") +
   labs(
-    title = "Cantidad de Viviendas por número de integrantes",
-    x = "Número de integrantes",
-    y = "Cantida de Dormitorios"
+    title = "Relación entre integrantes y cantidad de ambientes usados como dormitorio",
+    x = "Cantidad de dormitorios",
+    y = "Número de integrantes"
   ) +
+  scale_y_continuous(breaks = seq(0, max(datos_base$CantidadIntegrantesVivienda, na.rm = TRUE), by = 1)) +
   theme_minimal()
 
 
@@ -117,12 +127,17 @@ datos_base$PresionAgua <- factor(datos_base$PresionAgua, levels = names(sort(tab
 # --- GRAFICO 3 ------
 ggplot(data.frame(datos_base), aes(x = FormaObtencionAgua)) +
   geom_bar(fill = "blue") +
-  labs(title = "Forma de Obtención del Agua",
-       x = "",
-       y = "Cantidad de hogares") +
+  labs(
+    title = "Forma de Obtención del Agua",
+    x = "",
+    y = "Cantidad de hogares"
+  ) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 50, hjust = 1))+
-  scale_y_continuous(breaks = seq(0, max(table(datos_base$FormaObtencionAgua)), by = 50))
+  scale_y_continuous(breaks = seq(0, max(table(datos_base$FormaObtencionAgua)), by = 10)) +
+  coord_flip()
+# Tabla de frecuencias
+freqFormaObtencionAgua <- table(datos_base$FormaObtencionAgua)
+round(max(freqFormaObtencionAgua)/sum(freqFormaObtencionAgua) * 100, 2)
 
 # --- GRAFICO 4 ------
 
@@ -133,7 +148,7 @@ ggplot(data.frame(datos_base), aes(x = PresionAgua)) +
        y = "Cantidad de hogares") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 50, hjust = 1))+
-  scale_y_continuous(breaks = seq(0, max(table(datos_base$PresionAgua)), by = 50))
+  scale_y_continuous(breaks = seq(0, max(table(datos_base$PresionAgua)), by = 5))
 
 #SECCION CALEFACCION Y COCINA
 calefaccion <- data.frame(
@@ -224,3 +239,13 @@ tabla_contingencia <- table(
 print('LEÑA/CARBON')
 print(tabla_contingencia)
 
+# --- GRAFICO 8 ------
+ggplot(data.frame(datos_base), aes(x = TipoConexionElectrica)) +
+  geom_bar(fill = "green") +
+  labs(
+    title = "Tipo de conexion electrica",
+    x = "",
+    y = "Cantidad de hogares"
+  ) +
+  theme_minimal() +
+  scale_y_continuous(breaks = seq(0, max(table(datos_base$TipoConexionElectrica)), by = 10))
