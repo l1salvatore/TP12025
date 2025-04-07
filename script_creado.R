@@ -86,6 +86,18 @@ print(df_tabla)
 boxplot(datos_base$TiempoDeResidenciaEnAños, main = "Tiempo de Residencia en Años", ylab = "Tiempo de Residencia en Años", col = "lightblue")
 summary(datos_base$TiempoDeResidenciaEnAños)
 
+# --- GRAFICO 1.1 ------ #Tiempo de residencia en años por provincia
+ggplot(datos_base, aes(x = as.factor(Provincia), y = TiempoDeResidenciaEnAños)) +
+  geom_boxplot(fill = "skyblue") +
+  labs(
+    title = "Tiempo de residencia por provincia",
+    x = "Provincia",
+    y = "Tiempo de Residencia"
+  ) +
+  scale_y_continuous(breaks = seq(0, max(datos_base$TiempoDeResidenciaEnAños, na.rm = TRUE), by = 1)) +
+  theme_minimal()
+
+
 # ---- GRAFICO 2 ----
 
 ggplot(datos_base, aes(x = factor(CantidadIntegrantesVivienda))) +
