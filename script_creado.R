@@ -18,7 +18,7 @@ colnames(datos) <- c("OrdenInicial", # Cuantitativa Discreta
                       "CantidadIntegrantesVivienda", #Cuantitativa Discreta
                       "CantidadDeDormitorios", #Cuantitativa Discreta
                       "FormaObtencionAgua", # Cualitativa Nominal
-                      "AguaPotable", # Cualitativa Nominal Dicotómica
+                      "ConsumeAguaEmbotellada", # Cualitativa Nominal Dicotómica
                       "PresionAgua", # Cualitativa Ordinal
                      
                        #TipoDeCalefaccion -> Cualitativa de respuesta múltiple
@@ -42,7 +42,6 @@ datos <- data.frame(datos)
 # Transformación
 datos_base <- datos |>
     mutate(
-      AguaPotable = ifelse(AguaPotable == 'No' & !is.na(AguaPotable), 'Si', 'No'),
       PoseeGasNaturalParaCocina = ifelse(PoseeGasNaturalParaCocina == 'Gas natural (red de gas)' & !is.na(PoseeGasNaturalParaCocina), 1, 0),
       PoseeGarrafaParaCocina = ifelse(PoseeGarrafaParaCocina == 'Gas natural (red de gas)'& !is.na(PoseeGarrafaParaCocina), 1, 0),
       ElectricidadParaCocina = ifelse(ElectricidadParaCocina == 'Electricidad'& !is.na(ElectricidadParaCocina), 1, 0),
@@ -150,6 +149,10 @@ ggplot(data.frame(datos_base), aes(x = FormaObtencionAgua)) +
 # Tabla de frecuencias
 freqFormaObtencionAgua <- table(datos_base$FormaObtencionAgua)
 round(max(freqFormaObtencionAgua)/sum(freqFormaObtencionAgua) * 100, 2)
+
+#-----GRAFICO 3.1: Agua Potable -----
+table <- table(datos_base$FormaObtencionAgua, datos_base$AguaPotable)
+print(table)
 
 # --- GRAFICO 4 ------
 
