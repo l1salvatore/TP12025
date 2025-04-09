@@ -69,7 +69,7 @@ datos_base <- datos |>
        )
 datos_base <- datos_base %>%
   filter(Provincia == "Río Negro" | Provincia == "Santa Cruz")
-datos_base$PresionAgua <- factor(datos_base$PresionAgua, 
+datos_base$PresionAgua <- factor(as.character(datos_base$PresionAgua), 
                                  levels = c("Muy débil", "Débil", "Buena"), 
                                  ordered = TRUE)
 
@@ -151,12 +151,12 @@ freqFormaObtencionAgua <- table(datos_base$FormaObtencionAgua)
 round(max(freqFormaObtencionAgua)/sum(freqFormaObtencionAgua) * 100, 2)
 
 #-----GRAFICO 3.1: Agua Potable -----
-table <- table(datos_base$FormaObtencionAgua, datos_base$AguaPotable)
+table <- table(datos_base$FormaObtencionAgua, datos_base$ConsumeAguaEmbotellada)
 print(table)
 
 # --- GRAFICO 4 ------
 
-ggplot(data.frame(datos_base), aes(x = PresionAgua)) +
+ggplot(datos_base, aes(x = PresionAgua)) +
   geom_bar(fill = "lightblue") +
   labs(title = "Presion del Agua",
        x = "",
