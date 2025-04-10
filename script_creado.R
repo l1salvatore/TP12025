@@ -82,7 +82,14 @@ print(df_tabla)
 
 # --- GRAFICO 1 ------ #Tiempo de residencia en años
 # Armamos un boxplot, para observar rapidamente un panorama donde se concentra el tiempo de residencia
-boxplot(datos_base$TiempoDeResidenciaEnAños, main = "Tiempo de Residencia en Años", ylab = "Tiempo de Residencia en Años", col = "lightblue")
+hist_data <- hist(datos_base$TiempoDeResidenciaEnAños,
+     main = "Tiempo de Residencia en Años",
+     xlab = "Tiempo de Residencia en Años",
+     ylab = "Cantidad de Viviendas",
+     col = "lightblue",
+     breaks = seq(0, max(datos_base$TiempoDeResidenciaEnAños, na.rm = TRUE) + 5, by = 5),
+     border = "white")
+lines(hist_data$mids, hist_data$counts, type = "b", col = "blue", lwd = 2, pch = 16)
 summary(datos_base$TiempoDeResidenciaEnAños)
 
 # --- GRAFICO 1.1 ------ #Tiempo de residencia en años por provincia
@@ -151,8 +158,26 @@ freqFormaObtencionAgua <- table(datos_base$FormaObtencionAgua)
 round(max(freqFormaObtencionAgua)/sum(freqFormaObtencionAgua) * 100, 2)
 
 #-----GRAFICO 3.1: Agua Potable -----
-table <- table(datos_base$FormaObtencionAgua, datos_base$ConsumeAguaEmbotellada)
-print(table)
+# Calcular porcentajes por cada FormaObtencionAgua
+datos_plot <- datos_base %>%
+  group_by(FormaObtencionAgua, ConsumeAguaEmbotellada) %>%
+  summarise(Frecuencia = n(), .groups = "drop") %>%
+  group_by(FormaObtencionAgua) %>%
+  mutate(Prop = Frecuencia / sum(Frecuencia),
+         Porcentaje = paste0(round(Prop * 100), "%")) %>%
+  ungroup()
+
+# Gráfico de torta con etiquetas de porcentaje
+ggplot(datos_plot, aes(x = "", y = Prop, fill = ConsumeAguaEmbotellada)) +
+  geom_bar(stat = "identity", width = 1, color = "white") +
+  geom_text(aes(label = Porcentaje),
+            position = position_stack(vjust = 0.5), size = 4) +
+  coord_polar("y", start = 0) +
+  facet_wrap(~ FormaObtencionAgua) +
+  labs(title = "Distribución del Consumo de Agua Embotellada",
+       fill = "¿Consume Agua Embotellada?") +
+  theme_void() +
+  theme(strip.text = element_text(face = "bold"))
 
 # --- GRAFICO 4 ------
 
