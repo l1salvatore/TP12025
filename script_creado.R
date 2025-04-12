@@ -91,7 +91,7 @@ hist_data <- hist(datos_base$TiempoDeResidenciaEnAños,
      border = "white")
 lines(hist_data$mids, hist_data$counts, type = "b", col = "blue", lwd = 2, pch = 16)
 summary(datos_base$TiempoDeResidenciaEnAños)
-
+var(datos_base$TiempoDeResidenciaEnAños)
 # --- GRAFICO 1.1 ------ #Tiempo de residencia en años por provincia
 ggplot(datos_base, aes(x = as.factor(Provincia), y = TiempoDeResidenciaEnAños)) +
   geom_boxplot(fill = "skyblue") +
@@ -102,6 +102,8 @@ ggplot(datos_base, aes(x = as.factor(Provincia), y = TiempoDeResidenciaEnAños))
   ) +
   scale_y_continuous(breaks = seq(0, max(datos_base$TiempoDeResidenciaEnAños, na.rm = TRUE), by = 1)) +
   theme_minimal()
+summary((datos_base %>% filter(Provincia == 'Río Negro'))$TiempoDeResidenciaEnAños)
+summary((datos_base %>% filter(Provincia == 'Santa Cruz'))$TiempoDeResidenciaEnAños)
 
 
 # ---- GRAFICO 2 ----
@@ -120,9 +122,10 @@ ggplot(datos_base, aes(x = factor(CantidadIntegrantesVivienda))) +
     y = "Cantida de Viviendas"
   ) +
   theme_minimal()
-summary(datos_base$CantidadIntegrantesVivienda)
-var(datos_base$CantidadIntegrantesVivienda)
+
 sd(datos_base$CantidadIntegrantesVivienda)
+summary(datos_base$CantidadIntegrantesVivienda)
+
 
 # ---- GRAFICO 2.1 ----
 
@@ -214,7 +217,7 @@ ggplot(calefaccion_df, aes(x = Tipo, y = Frecuencia, fill = Tipo)) +
   labs(title = "Cantidad de Hogares de acuerdo a los Métodos de Calefacción", x = "Tipo", y = "Frecuencia") +
   theme_minimal() +
   scale_fill_brewer(palette = "Set3") +
-  geom_text(aes(label = calefaccion_df$Frecuencia), vjust = -0.5, color = "black")
+  geom_text(aes(label = Frecuencia), vjust = -0.5, color = "black")
 
 
 cocina <- data.frame(
