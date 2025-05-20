@@ -91,16 +91,16 @@ hist_data <- hist(datos_base$TiempoDeResidenciaEnAños,
      border = "white")
 lines(hist_data$mids, hist_data$counts, type = "b", col = "blue", lwd = 2, pch = 16)
 summary(datos_base$TiempoDeResidenciaEnAños)
-var(datos_base$TiempoDeResidenciaEnAños)
+sd(datos_base$TiempoDeResidenciaEnAños)
 # --- GRAFICO 1.1 ------ #Tiempo de residencia en años por provincia
-ggplot(datos_base, aes(x = as.factor(Provincia), y = TiempoDeResidenciaEnAños)) +
-  geom_boxplot(fill = "skyblue") +
+ggplot(datos_base, aes(x = paste(Barrio, Provincia, sep = " - "), y = TiempoDeResidenciaEnAños)) +
+  geom_boxplot(fill = "green") +
   labs(
-    title = "Tiempo de residencia por provincia",
-    x = "Provincia",
+    title = "Tiempo de residencia por barrio popular",
+    x = "Barrio",
     y = "Tiempo de Residencia"
   ) +
-  scale_y_continuous(breaks = seq(0, max(datos_base$TiempoDeResidenciaEnAños, na.rm = TRUE), by = 1)) +
+  scale_y_continuous(breaks = seq(0, max(datos_base$TiempoDeResidenciaEnAños, na.rm = TRUE), by = 5)) +
   theme_minimal()
 summary((datos_base %>% filter(Provincia == 'Río Negro'))$TiempoDeResidenciaEnAños)
 summary((datos_base %>% filter(Provincia == 'Santa Cruz'))$TiempoDeResidenciaEnAños)
@@ -114,12 +114,12 @@ ggplot(datos_base, aes(x = factor(CantidadIntegrantesVivienda))) +
     aes(label = after_stat(count)),  # Usar las frecuencias calculadas
     stat = "count", 
     vjust = -0.5, 
-    size = 4
+    size = 2
   ) +
   labs(
-    title = "Cantidad de Viviendas por número de integrantes",
+    title = "Cantidad de viviendas por número de integrantes",
     x = "Número de integrantes",
-    y = "Cantida de Viviendas"
+    y = "Cantidad de viviendas"
   ) +
   theme_minimal()
 
@@ -130,7 +130,7 @@ summary(datos_base$CantidadIntegrantesVivienda)
 # ---- GRAFICO 2.1 ----
 
 ggplot(datos_base, aes(x = as.factor(CantidadDeDormitorios), y = CantidadIntegrantesVivienda)) +
-  geom_boxplot(fill = "skyblue") +
+  geom_boxplot(fill = "red") +
   labs(
     title = "Relación entre integrantes y cantidad de ambientes usados como dormitorio",
     x = "Cantidad de dormitorios",
@@ -139,7 +139,7 @@ ggplot(datos_base, aes(x = as.factor(CantidadDeDormitorios), y = CantidadIntegra
   scale_y_continuous(breaks = seq(0, max(datos_base$CantidadIntegrantesVivienda, na.rm = TRUE), by = 1)) +
   theme_minimal()
 
-
+summary(datos_base$CantidadDeDormitorios)
 #SECCION AGUA 
 #Forma de obtención de agua
 datos_base$FormaObtencionAgua <- factor(datos_base$FormaObtencionAgua, levels = names(sort(table(datos_base$FormaObtencionAgua), decreasing = TRUE)))
@@ -185,7 +185,13 @@ ggplot(datos_plot, aes(x = "", y = Prop, fill = ConsumeAguaEmbotellada)) +
 # --- GRAFICO 4 ------
 
 ggplot(datos_base, aes(x = PresionAgua)) +
-  geom_bar(fill = "lightblue") +
+  geom_bar(fill = "lightgreen")  +
+  geom_text(
+    aes(label = after_stat(count)),  # Usar las frecuencias calculadas
+    stat = "count", 
+    vjust = -0.5, 
+    size = 2
+  ) +
   labs(title = "Presion del Agua",
        x = "",
        y = "Cantidad de hogares") +
@@ -193,6 +199,10 @@ ggplot(datos_base, aes(x = PresionAgua)) +
   theme(axis.text.x = element_text(angle = 50, hjust = 1))+
   scale_y_continuous(breaks = seq(0, max(table(datos_base$PresionAgua)), by = 5))
 
+freqPresionAgua <- table(datos_base$PresionAgua)
+suma_debil <- freqPresionAgua["Muy débil"] + freqPresionAgua["Débil"]
+porcentaje_debil <- round(suma_debil / sum(freqPresionAgua) * 100, 2)
+porcentaje_debil
 #SECCION CALEFACCION Y COCINA
 calefaccion <- data.frame(
   GasNatural = datos_base$PoseeGasNaturalParaCalefaccion,
@@ -212,9 +222,11 @@ calefaccion_df <- data.frame(
 
 
 # --- GRAFICO 5: Porcentaje de hogares por método de calefacción------
-ggplot(calefaccion_df, aes(x = Tipo, y = Frecuencia, fill = Tipo)) +
+ggplot(calefaccion_df, aes(x = reorder(Tipo, -Frecuencia), y = Frecuencia, fill = Tipo)) +
   geom_bar(stat = "identity") +
-  labs(title = "Cantidad de Hogares de acuerdo a los Métodos de Calefacción", x = "Tipo", y = "Frecuencia") +
+  labs(title = "Cantidad de Hogares de acuerdo a los Métodos de Calefacción", 
+       x = "Tipo", 
+       y = "Frecuencia") +
   theme_minimal() +
   scale_fill_brewer(palette = "Set3") +
   geom_text(aes(label = Frecuencia), vjust = -0.5, color = "black")
@@ -235,7 +247,7 @@ cocina_df <- data.frame(
 )
 
 # --- GRAFICO 6: Porcentaje de hogares por método de cocina------
-ggplot(cocina_df, aes(x = Tipo, y = Frecuencia, fill = Tipo)) +
+ggplot(cocina_df, aes(x =  reorder(Tipo, -Frecuencia), y = Frecuencia, fill = Tipo)) +
   geom_bar(stat = "identity") +
   labs(title = "Cantidad de Hogares de acuerdo a los Métodos de Cocina", x = "Tipo", y = "Frecuencia") +
   theme_minimal() +
@@ -283,11 +295,18 @@ print('LEÑA/CARBON')
 print(tabla_contingencia)
 
 # --- GRAFICO 8 ------
+datos_base$TipoConexionElectrica <- factor(datos_base$TipoConexionElectrica, levels = names(sort(table(datos_base$TipoConexionElectrica), decreasing = TRUE)))
 ggplot(data.frame(datos_base), aes(x = TipoConexionElectrica)) +
-  geom_bar(fill = "green") +
+  geom_bar(fill = "orange") +
+  geom_text(
+    aes(label = after_stat(count)),  # Usar las frecuencias calculadas
+    stat = "count", 
+    vjust = -0.5, 
+    size = 4
+  ) +
   labs(
-    title = "Tipo de conexion electrica",
-    x = "",
+    title = "Cantidad de hogares de acuerdo al suministro de energía eléctrica",
+    x = "Tipo de conexión eléctrica",
     y = "Cantidad de hogares"
   ) +
   theme_minimal() +
