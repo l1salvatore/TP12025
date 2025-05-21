@@ -129,15 +129,19 @@ summary(datos_base$CantidadIntegrantesVivienda)
 
 # ---- GRAFICO 2.1 ----
 
-ggplot(datos_base, aes(x = as.factor(CantidadDeDormitorios), y = CantidadIntegrantesVivienda)) +
-  geom_boxplot(fill = "red") +
+ggplot(datos_base, aes(x = CantidadDeDormitorios , y =  CantidadIntegrantesVivienda)) +
+  geom_jitter(width = 0.5, height = 0.2, color = "red", alpha = 0.6) +
   labs(
     title = "Relación entre integrantes y cantidad de ambientes usados como dormitorio",
     x = "Cantidad de dormitorios",
     y = "Número de integrantes"
   ) +
   scale_y_continuous(breaks = seq(0, max(datos_base$CantidadIntegrantesVivienda, na.rm = TRUE), by = 1)) +
-  theme_minimal()
+  theme_minimal()+
+  theme(
+    axis.text.x = element_text(color = "black"),
+    axis.text.y = element_text(color = "black")
+  )
 
 summary(datos_base$CantidadDeDormitorios)
 #SECCION AGUA 
@@ -223,13 +227,16 @@ calefaccion_df <- data.frame(
 
 # --- GRAFICO 5: Porcentaje de hogares por método de calefacción------
 ggplot(calefaccion_df, aes(x = reorder(Tipo, -Frecuencia), y = Frecuencia, fill = Tipo)) +
-  geom_bar(stat = "identity") +
+  geom_bar(stat = "identity", fill = "orange") +
   labs(title = "Cantidad de Hogares de acuerdo a los Métodos de Calefacción", 
        x = "Tipo", 
-       y = "Frecuencia") +
+       y = "Hogares") +
   theme_minimal() +
-  scale_fill_brewer(palette = "Set3") +
-  geom_text(aes(label = Frecuencia), vjust = -0.5, color = "black")
+  geom_text(aes(label = Frecuencia), vjust = -0.5, color = "black") +
+  theme(
+    axis.text.x = element_text(color = "black"),
+    axis.text.y = element_text(color = "black")
+  )
 
 
 cocina <- data.frame(
@@ -248,11 +255,14 @@ cocina_df <- data.frame(
 
 # --- GRAFICO 6: Porcentaje de hogares por método de cocina------
 ggplot(cocina_df, aes(x =  reorder(Tipo, -Frecuencia), y = Frecuencia, fill = Tipo)) +
-  geom_bar(stat = "identity") +
-  labs(title = "Cantidad de Hogares de acuerdo a los Métodos de Cocina", x = "Tipo", y = "Frecuencia") +
+  geom_bar(stat = "identity", fill = "orange") +
+  labs(title = "Cantidad de Hogares de acuerdo a los Métodos de Cocina", x = "Tipo", y = "Hogares") +
   theme_minimal() +
-  scale_fill_brewer(palette = "Set3") +
-  geom_text(aes(label = Frecuencia), vjust = -0.5, color = "black")
+  geom_text(aes(label = Frecuencia), vjust = -0.5, color = "black") +
+  theme(
+    axis.text.x = element_text(color = "black"),
+    axis.text.y = element_text(color = "black")
+  )
 
 
 
@@ -297,7 +307,7 @@ print(tabla_contingencia)
 # --- GRAFICO 8 ------
 datos_base$TipoConexionElectrica <- factor(datos_base$TipoConexionElectrica, levels = names(sort(table(datos_base$TipoConexionElectrica), decreasing = TRUE)))
 ggplot(data.frame(datos_base), aes(x = TipoConexionElectrica)) +
-  geom_bar(fill = "orange") +
+  geom_bar(fill = "brown") +
   geom_text(
     aes(label = after_stat(count)),  # Usar las frecuencias calculadas
     stat = "count", 
@@ -305,9 +315,13 @@ ggplot(data.frame(datos_base), aes(x = TipoConexionElectrica)) +
     size = 4
   ) +
   labs(
-    title = "Cantidad de hogares de acuerdo al suministro de energía eléctrica",
+    title = "Distribución de los hogares de acuerdo al suministro de energía eléctrica",
     x = "Tipo de conexión eléctrica",
     y = "Cantidad de hogares"
   ) +
   theme_minimal() +
-  scale_y_continuous(breaks = seq(0, max(table(datos_base$TipoConexionElectrica)), by = 10))
+  scale_y_continuous(breaks = seq(0, max(table(datos_base$TipoConexionElectrica)), by = 10)) +
+  theme(
+    axis.text.x = element_text(color = "black"),
+    axis.text.y = element_text(color = "black")
+  )
