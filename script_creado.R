@@ -83,7 +83,7 @@ print(df_tabla)
 # --- GRAFICO 1 ------ #Tiempo de residencia en años
 # Armamos un boxplot, para observar rapidamente un panorama donde se concentra el tiempo de residencia
 hist_data <- hist(datos_base$TiempoDeResidenciaEnAños,
-     main = "Tiempo de Residencia en Años",
+     main = "Distribución de las viviendas de acuerdo a los años de residencia",
      xlab = "Tiempo de Residencia en Años",
      ylab = "Cantidad de Viviendas",
      col = "lightblue",
@@ -92,16 +92,22 @@ hist_data <- hist(datos_base$TiempoDeResidenciaEnAños,
 lines(hist_data$mids, hist_data$counts, type = "b", col = "blue", lwd = 2, pch = 16)
 summary(datos_base$TiempoDeResidenciaEnAños)
 sd(datos_base$TiempoDeResidenciaEnAños)
+
 # --- GRAFICO 1.1 ------ #Tiempo de residencia en años por provincia
 ggplot(datos_base, aes(x = paste(Barrio, Provincia, sep = " - "), y = TiempoDeResidenciaEnAños)) +
   geom_boxplot(fill = "green") +
   labs(
-    title = "Tiempo de residencia por barrio popular",
+    title = "Tiempo de residencia de acuerdo al barrio popular",
     x = "Barrio",
     y = "Tiempo de Residencia"
   ) +
   scale_y_continuous(breaks = seq(0, max(datos_base$TiempoDeResidenciaEnAños, na.rm = TRUE), by = 5)) +
-  theme_minimal()
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(color = "black"),
+    axis.text.y = element_text(color = "black"),
+    plot.title = element_text(hjust = 0.5)  # Centra el título
+  )
 summary((datos_base %>% filter(Provincia == 'Río Negro'))$TiempoDeResidenciaEnAños)
 summary((datos_base %>% filter(Provincia == 'Santa Cruz'))$TiempoDeResidenciaEnAños)
 
@@ -117,11 +123,16 @@ ggplot(datos_base, aes(x = factor(CantidadIntegrantesVivienda))) +
     size = 2
   ) +
   labs(
-    title = "Cantidad de viviendas por número de integrantes",
+    title = "Distribución de las viviendas por número de integrantes",
     x = "Número de integrantes",
     y = "Cantidad de viviendas"
   ) +
-  theme_minimal()
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(color = "black"),
+    axis.text.y = element_text(color = "black"),
+    plot.title = element_text(hjust = 0.5)  # Centra el título
+  )
 
 sd(datos_base$CantidadIntegrantesVivienda)
 summary(datos_base$CantidadIntegrantesVivienda)
@@ -131,13 +142,14 @@ summary(datos_base$CantidadIntegrantesVivienda)
 
 ggplot(datos_base, aes(x = CantidadDeDormitorios , y =  CantidadIntegrantesVivienda)) +
   geom_jitter(width = 0.5, height = 0.2, color = "red", alpha = 0.6) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue", size = 1) +  # Línea azul de regresión
   labs(
     title = "Relación entre integrantes y cantidad de ambientes usados como dormitorio",
     x = "Cantidad de dormitorios",
     y = "Número de integrantes"
   ) +
   scale_y_continuous(breaks = seq(0, max(datos_base$CantidadIntegrantesVivienda, na.rm = TRUE), by = 1)) +
-  theme_minimal()+
+  theme_minimal() +
   theme(
     axis.text.x = element_text(color = "black"),
     axis.text.y = element_text(color = "black")
@@ -175,16 +187,23 @@ datos_plot <- datos_base %>%
   ungroup()
 
 # Gráfico de torta con etiquetas de porcentaje
-ggplot(datos_plot, aes(x = "", y = Prop, fill = ConsumeAguaEmbotellada)) +
-  geom_bar(stat = "identity", width = 1, color = "white") +
+ggplot(datos_plot, aes(x = FormaObtencionAgua, y = Prop, fill = ConsumeAguaEmbotellada)) +
+  geom_bar(stat = "identity", color = "white") +
   geom_text(aes(label = Porcentaje),
-            position = position_stack(vjust = 0.5), size = 4) +
-  coord_polar("y", start = 0) +
-  facet_wrap(~ FormaObtencionAgua) +
-  labs(title = "Distribución del Consumo de Agua Embotellada",
-       fill = "¿Consume Agua Embotellada?") +
-  theme_void() +
-  theme(strip.text = element_text(face = "bold"))
+            position = position_stack(vjust = 0.5), size = 4, color = "white") +
+  labs(
+    title = "Distribución del Consumo de Agua Embotellada de acuerdo a cómo se proveen del mismo",
+    x = "Forma de Obtención de Agua",
+    y = "Proporción",
+    fill = "¿Consume Agua Embotellada?"
+  ) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, color = "black"),
+    axis.text.y = element_text(color = "black"),
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
 
 # --- GRAFICO 4 ------
 
@@ -196,11 +215,13 @@ ggplot(datos_base, aes(x = PresionAgua)) +
     vjust = -0.5, 
     size = 2
   ) +
-  labs(title = "Presion del Agua",
+  labs(title = "Distribución de los hogares de acuerdo a la presión del agua",
        x = "",
        y = "Cantidad de hogares") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 50, hjust = 1))+
+  theme(
+    axis.text.x = element_text(angle = 50, hjust = 1, color = "black"),
+    axis.text.y = element_text(color = "black")) +
   scale_y_continuous(breaks = seq(0, max(table(datos_base$PresionAgua)), by = 5))
 
 freqPresionAgua <- table(datos_base$PresionAgua)
