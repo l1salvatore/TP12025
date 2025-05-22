@@ -165,7 +165,7 @@ datos_base$PresionAgua <- factor(datos_base$PresionAgua, levels = names(sort(tab
 ggplot(data.frame(datos_base), aes(x = FormaObtencionAgua)) +
   geom_bar(fill = "blue") +
   labs(
-    title = "Forma de Obtención del Agua",
+    title = "Número de viviendas en base a la forma de obtención del agua",
     x = "",
     y = "Cantidad de hogares"
   ) +
@@ -213,7 +213,7 @@ ggplot(datos_base, aes(x = PresionAgua)) +
     aes(label = after_stat(count)),  # Usar las frecuencias calculadas
     stat = "count", 
     vjust = -0.5, 
-    size = 2
+    size = 5
   ) +
   labs(title = "Distribución de los hogares de acuerdo a la presión del agua",
        x = "",
@@ -221,8 +221,10 @@ ggplot(datos_base, aes(x = PresionAgua)) +
   theme_minimal() +
   theme(
     axis.text.x = element_text(angle = 50, hjust = 1, color = "black"),
-    axis.text.y = element_text(color = "black")) +
+    axis.text.y = element_text(color = "black"),
+    plot.title = element_text(hjust = 0.5, face = "bold")) +
   scale_y_continuous(breaks = seq(0, max(table(datos_base$PresionAgua)), by = 5))
+
 
 freqPresionAgua <- table(datos_base$PresionAgua)
 suma_debil <- freqPresionAgua["Muy débil"] + freqPresionAgua["Débil"]
@@ -249,14 +251,16 @@ calefaccion_df <- data.frame(
 # --- GRAFICO 5: Porcentaje de hogares por método de calefacción------
 ggplot(calefaccion_df, aes(x = reorder(Tipo, -Frecuencia), y = Frecuencia, fill = Tipo)) +
   geom_bar(stat = "identity", fill = "orange") +
-  labs(title = "Cantidad de Hogares de acuerdo a los Métodos de Calefacción", 
+  labs(title = "Número de Hogares de acuerdo al modo de calefacción", 
        x = "Tipo", 
        y = "Hogares") +
   theme_minimal() +
   geom_text(aes(label = Frecuencia), vjust = -0.5, color = "black") +
   theme(
     axis.text.x = element_text(color = "black"),
-    axis.text.y = element_text(color = "black")
+    axis.text.y = element_text(color = "black"),
+    plot.title = element_text(hjust = 0.5)  # Centra el título
+
   )
 
 
@@ -277,12 +281,13 @@ cocina_df <- data.frame(
 # --- GRAFICO 6: Porcentaje de hogares por método de cocina------
 ggplot(cocina_df, aes(x =  reorder(Tipo, -Frecuencia), y = Frecuencia, fill = Tipo)) +
   geom_bar(stat = "identity", fill = "orange") +
-  labs(title = "Cantidad de Hogares de acuerdo a los Métodos de Cocina", x = "Tipo", y = "Hogares") +
+  labs(title = "Número de Hogares de acuerdo al modo de cocina", x = "", y = "Hogares") +
   theme_minimal() +
   geom_text(aes(label = Frecuencia), vjust = -0.5, color = "black") +
   theme(
     axis.text.x = element_text(color = "black"),
-    axis.text.y = element_text(color = "black")
+    axis.text.y = element_text(color = "black"),
+    plot.title = element_text(hjust = 0.5)  # Centra el título
   )
 
 
@@ -336,7 +341,7 @@ ggplot(data.frame(datos_base), aes(x = TipoConexionElectrica)) +
     size = 4
   ) +
   labs(
-    title = "Distribución de los hogares de acuerdo al suministro de energía eléctrica",
+    title = "Porcentaje de hogares de acuerdo al suministro de energía eléctrica",
     x = "Tipo de conexión eléctrica",
     y = "Cantidad de hogares"
   ) +
@@ -344,5 +349,7 @@ ggplot(data.frame(datos_base), aes(x = TipoConexionElectrica)) +
   scale_y_continuous(breaks = seq(0, max(table(datos_base$TipoConexionElectrica)), by = 10)) +
   theme(
     axis.text.x = element_text(color = "black"),
-    axis.text.y = element_text(color = "black")
+    axis.text.y = element_text(color = "black"),
+    plot.title = element_text(hjust = 0.5, face = "bold")
+
   )
